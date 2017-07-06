@@ -10,7 +10,7 @@ setInterval(function(){
 	superagent.get('http://eoschart.com/data/getIcoStatus.html')
 		.end(function(err, res){
 			if (err){
-				return next(err);
+				console.log('error ocured when visiting eoschar');
 			}
 			var cheerio = require('cheerio'),
     		$ = cheerio.load(res.text);
