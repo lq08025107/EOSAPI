@@ -1,29 +1,25 @@
-
 var express = require('express')
-var superagent = require('superagent')
+var request = require('request')
 var cheerio = require('cheerio')
 var app = express()
 
 infos = ['','','','','']
 EOSYunbiPrice = 0
-setInterval(function(){
-	superagent.get('http://eoschart.com/data/getIcoStatus.html')
-		.end(function(err, res){
-			if (err){
-				console.log('error ocured when visiting eoschar');
-			}
-			var cheerio = require('cheerio'),
-    		$ = cheerio.load(res.text);
-    		$('span').each(function(i, elem){
-    			var info = $(this).text().trim();
-    			if(info != ''){
-    				infos[i] = info;
-    			} 
-    		});
-    		infos.join(', ');
-    		console.log(infos)
-		});
-}, 20000);
+count = 0
+setInterval(
+	function(){
+		request('http://eoschart.com/data/getIcoStatus.html', function(error, response, body){
+			var cheerio = require('cheerio');
+			$ = cheerio.load(body);
+			$('span').each(function(i, elem){
+				var info = $(this).text().trim();
+				if(info != ''){
+					infos[i] = info;
+				} 
+				infos.join(', ');
+			});
+			console.log(infos);
+	})},20000);
 
 app.get('/yunbi',function(req, res, next){
 	var request = require('request');
@@ -39,6 +35,7 @@ app.get('/yunbi',function(req, res, next){
 	
 });
 app.get('/', function(req, res, next){
+	console.log(infos)
 	var timeString = infos[0];
 	var ETHCount = infos[1].split(' ')[1];
 	var ETH2EOS = infos[2].split(' ')[1];
@@ -52,11 +49,8 @@ app.get('/', function(req, res, next){
 		'marketValue':marketValue 
 	};
 	res.send(jsonStr)
-})
+});
 
 app.listen(3000, function(req, res){
 	console.log('app is running at port 3000')
 });
-
-
-
